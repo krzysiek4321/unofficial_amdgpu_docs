@@ -10,35 +10,149 @@ Returns version of amdkfd driver.
 ## CREATE_QUEUE
 		AMDKFD_IOWR(0x02, struct kfd_ioctl_create_queue_args)
 
+### Inputs
+	__u64 ring_base_address;	/* to KFD */
+	__u64 write_pointer_address;	/* to KFD */
+	__u64 read_pointer_address;	/* to KFD */
+
+	__u32 ring_size;		/* to KFD */
+	__u32 gpu_id;		/* to KFD */
+	__u32 queue_type;		/* to KFD */
+	__u32 queue_percentage;	/* to KFD */
+	__u32 queue_priority;	/* to KFD */
+
+	__u64 eop_buffer_address;	/* to KFD */
+	__u64 eop_buffer_size;	/* to KFD */
+	__u64 ctx_save_restore_address; /* to KFD */
+	__u32 ctx_save_restore_size;	/* to KFD */
+	__u32 ctl_stack_size;		/* to KFD */
+	__u32 sdma_engine_id;		/* to KFD */
+
+### Outputs
+	__u64 doorbell_offset;	/* from KFD */
+	__u32 queue_id;		/* from KFD */
+
 ## DESTROY_QUEUE
 		AMDKFD_IOWR(0x03, struct kfd_ioctl_destroy_queue_args)
+
+### Inputs
+	__u32 queue_id;		/* to KFD */
+
 
 ## SET_MEMORY_POLICY
 		AMDKFD_IOW(0x04, struct kfd_ioctl_set_memory_policy_args)
 
+### Inputs
+	__u64 alternate_aperture_base;	/* to KFD */
+	__u64 alternate_aperture_size;	/* to KFD */
+
+	__u32 gpu_id;			/* to KFD */
+	__u32 default_policy;		/* to KFD */
+	__u32 alternate_policy;		/* to KFD */
+	__u32 misc_process_flag;        /* to KFD */
+
 ## GET_CLOCK_COUNTERS
 		AMDKFD_IOWR(0x05, struct kfd_ioctl_get_clock_counters_args)
+
+### Inputs
+	__u32 gpu_id;		/* to KFD */
+
+### Outputs
+	__u64 gpu_clock_counter;	/* from KFD */
+	__u64 cpu_clock_counter;	/* from KFD */
+	__u64 system_clock_counter;	/* from KFD */
+	__u64 system_clock_freq;	/* from KFD */
 
 ## GET_PROCESS_APERTURES
 		AMDKFD_IOR(0x06, struct kfd_ioctl_get_process_apertures_args)
 
+### Outputs
+```C
+struct {
+    __u64 lds_base;		/* from KFD */
+	__u64 lds_limit;		/* from KFD */
+	__u64 scratch_base;		/* from KFD */
+	__u64 scratch_limit;		/* from KFD */
+	__u64 gpuvm_base;		/* from KFD */
+	__u64 gpuvm_limit;		/* from KFD */
+	__u32 gpu_id;		/* from KFD */
+} nodes[7];
+__u32 num_of_nodes;
+```
+
 ## UPDATE_QUEUE
 		AMDKFD_IOW(0x07, struct kfd_ioctl_update_queue_args)
+
+### Inputs
+	__u64 ring_base_address;	/* to KFD */
+
+	__u32 queue_id;		/* to KFD */
+	__u32 ring_size;		/* to KFD */
+	__u32 queue_percentage;	/* to KFD */
+	__u32 queue_priority;	/* to KFD */
 
 ## CREATE_EVENT
 		AMDKFD_IOWR(0x08, struct kfd_ioctl_create_event_args)
 
+### Inputs
+```C
+    #define KFD_IOC_EVENT_SIGNAL		0
+    #define KFD_IOC_EVENT_NODECHANGE		1
+    #define KFD_IOC_EVENT_DEVICESTATECHANGE	2
+    #define KFD_IOC_EVENT_HW_EXCEPTION		3
+    #define KFD_IOC_EVENT_SYSTEM_EVENT		4
+    #define KFD_IOC_EVENT_DEBUG_EVENT		5
+    #define KFD_IOC_EVENT_PROFILE_EVENT		6
+    #define KFD_IOC_EVENT_QUEUE_EVENT		7
+    #define KFD_IOC_EVENT_MEMORY		8
+	__u32 event_type;		/* to KFD */
+	__u32 auto_reset;		/* to KFD */
+	__u32 node_id;		/* to KFD - only valid for certain
+							event types */
+```
+
+### Outputs
+	__u64 event_page_offset;	/* from KFD */
+	__u32 event_trigger_data;	/* from KFD - signal events only */
+	__u32 event_id;		/* from KFD */
+	__u32 event_slot_index;	/* from KFD */
+
+
 ## DESTROY_EVENT
 		AMDKFD_IOW(0x09, struct kfd_ioctl_destroy_event_args)
+
+### Input
+	__u32 event_id;		/* to KFD */
 
 ## SET_EVENT
 		AMDKFD_IOW(0x0A, struct kfd_ioctl_set_event_args)
 
+### Input
+	__u32 event_id;		/* to KFD */
+
 ## RESET_EVENT
 		AMDKFD_IOW(0x0B, struct kfd_ioctl_reset_event_args)
 
+### Input
+	__u32 event_id;		/* to KFD */
+
 ## WAIT_EVENTS
 		AMDKFD_IOWR(0x0C, struct kfd_ioctl_wait_events_args)
+
+### Inputs
+	__u64 events_ptr;		/* pointed to struct
+					   kfd_event_data array, to KFD */
+	__u32 num_events;		/* to KFD */
+	__u32 wait_for_all;		/* to KFD */
+	__u32 timeout;		/* to KFD */
+
+### Outputs
+```C
+    #define KFD_IOC_WAIT_RESULT_COMPLETE	0
+    #define KFD_IOC_WAIT_RESULT_TIMEOUT		1
+    #define KFD_IOC_WAIT_RESULT_FAIL		2
+	__u32 wait_result;		/* from KFD */
+```
 
 ## DBG_REGISTER_DEPRECATED
 		AMDKFD_IOW(0x0D, struct kfd_ioctl_dbg_register_args)
@@ -62,8 +176,9 @@ Returns version of amdkfd driver.
 		AMDKFD_IOW(0x13, struct kfd_ioctl_set_trap_handler_args)
 
 ## GET_PROCESS_APERTURES_NEW
-		AMDKFD_IOWR(0x14,		\
-			struct kfd_ioctl_get_process_apertures_new_args)
+		AMDKFD_IOWR(0x14, struct kfd_ioctl_get_process_apertures_new_args)
+
+Just like [GET_PROCESS_APERTURES](#get_process_apertures) except there is no limit to the number of nodes.
 
 ## ACQUIRE_VM
 		AMDKFD_IOW(0x15, struct kfd_ioctl_acquire_vm_args)
@@ -82,6 +197,14 @@ Returns version of amdkfd driver.
 
 ## SET_CU_MASK
 		AMDKFD_IOW(0x1A, struct kfd_ioctl_set_cu_mask_args)
+
+
+### Inputs
+	__u32 queue_id;		/* to KFD */
+	__u32 num_cu_mask;		/* to KFD */
+	__u64 cu_mask_ptr;		/* to KFD */
+
+**num_cu_mask** must be multiple of 32, because its unit is bit count and mask elements are uint32
 
 ## GET_QUEUE_WAVE_STATE
 		AMDKFD_IOWR(0x1B, struct kfd_ioctl_get_queue_wave_state_args)

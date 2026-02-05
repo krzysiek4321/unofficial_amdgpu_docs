@@ -14,3 +14,7 @@
     - [KFD](kfd/overview.md)
         - [ioctl](kfd/ioctl.md)
         - [mmap](kfd/mmap.md)
+        - [Command Queues](kfd/queue.md)
+        - [Doorbells](kfd/doorbell.md)
+- [Monitoring gpu state](sysfs/overview.md)
+    - [Tools](sysfs/tools.md)
