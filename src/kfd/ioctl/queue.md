@@ -4,19 +4,32 @@
 
 They exist to reduce ioctl communication to schedule work to the gpu.
 
+They are scheduled to hardware pipes.
+
 ## Properties
 ### Ring Buffer
 Size must be a power of 2 and at least 1024.
 Size is in bytes but remember the ring buffer is an array of u32 values.
 
-Buffer must be 256 bytes aligned, becuase the address is passed to the gpu shifted left by 8.
+Buffer must be 256 bytes aligned, becuase the address is passed to the gpu shifted right by 8.
+
+Buffer and rptr and wptr must be already mapped to buffer object (BO).
+The kernel does a lookup for Virtual Address (VA) mapping.
+
+`kfd_queue_acquire_buffers()` requires rptr and wptr to be mapped to exactly one gpu memory page (4096 bytes).
+It cannot be a part of a larger allocation.
+But I believe we can pack both of them and even ring buffer into one page if `size < 4096`.
 
 #### What is the type of value the rptr and wptr are pointing to?
 Perhaps it's actually indicees these pointers are dereferenced to u32 in create_queue kernel side implementation.
+
+They must be indicees because update_queue doesn't change the addresses of these.
+
 The size of the buffer is also in u32 and it would make sense
 to do arithmetic on indicees rather than raw addresses.
 
 #### Is the rptr and wptr guaranteed to be accessed by only one thread?
+Don't know yet.
 
 Wptr is the location commands can be written from.
 So the region from `[rptr, wptr - 1]` inclusive is reserved to be read by the gpu.
@@ -41,7 +54,6 @@ But wouldn't that mean commands don't get executed untill this percentage is rea
 ### Queue Priority
 `__u32 queue_priority;	/* to KFD */`
 
-Value from 0 to 15 (0xf), max prio at 15.
 {{#include queue/priority.md}}
 
 ### Doorbell offset

@@ -13,7 +13,7 @@ __u32 queue_type;		/* to KFD */
 ```
 {{#include type.md}}
 
-### User allocated ring buffer
+### Ring buffer
 ```C
 __u64 ring_base_address;	/* to KFD */
 __u64 write_pointer_address;	/* to KFD */
@@ -42,7 +42,7 @@ Not required.
 It's used to submit commands to GPU to be executed after a shader finishes and caches get flushed.
 Size must be appropriate for the selected gpu.
 
-### Criu save-restore buffer
+### Save-restore buffer
 ```C
 __u64 ctx_save_restore_address; /* to KFD */
 __u32 ctx_save_restore_size;	/* to KFD */
