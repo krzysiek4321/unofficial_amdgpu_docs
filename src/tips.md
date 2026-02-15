@@ -2,28 +2,16 @@
 These are some linux kernel features which might be helpful to stydy amdgpu kernel module.
 
 ## Tracefs
+
+### Function graphs
 We can use tracefs to veryfy at runtime the callstack
 of driver functions, we expect to be executed.
 
-1. Have a program triggering some event, for example a kernel function call
-2. Have sufficient permissions to modify files in /sys/kernel/tracing or /sys/kernel/debug/tracing.
-3. Navigate to the tracefs dir.
-4. Disable tracing
-`echo 0 > tracing_on`
-5. Enable a tracing event.
-
-Pick one from `events/` dir end set enable to 1 or create a custom event.
-
-5. Set tracer to trace function nesting.
-`echo function_graph > current_tracer`
-6. Set graph tracer to filter the callchain to a specific function.
-`echo kfd_ioctl_create_queue > set_graph_function`
-7. If you need more controll on what triggers the tracer or how deep it should look checkout the `README` file in tracefs.
-8. Enable tracing
-`echo 1 > tracing_on`
-9. Run the program
-10. Optionally, disable tracing
-11. Read the `trace` file
+For example, run as root:
+```sh
+trace-cmd record -p function_graph -g kfd_ioctl_acquire_vm -n _printk --max-graph-depth=6
+trace-cmd report
+```
 
 ## Dyndebug
 In order to not clutter the kernel dmesg buffer most messages are surpressed.
@@ -31,4 +19,13 @@ They can be enabled at runtime by writing to `/proc/dynamic_debug/control` file.
 
 Requires root access.
 
+For example, to enable all amdgpu messages use:
+```sh
+echo 'file *amdgpu* +p'
+```
+
+But you probably want to limit which events get printed.
+
 Read more at <https://docs.kernel.org/admin-guide/dynamic-debug-howto.html#dynamic-debug>.
+
+Unfortunetelly there is no mechanism to filter by process id

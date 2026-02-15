@@ -1,18 +1,25 @@
 # Supported IOCTLS (kernel 6.17, kfd 1.18)
 Add `AMDKFD_IOC_` to each to get C definitions.
+
 For more info look into `kernel/include/uapi/linux/kfd_ioctl.h`
 
 Implementation can be found in `kernel/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c`
+
+You can get **gpu_id** from `/sys/class/kfd/kfd/topology/nodes/*/gpu_id` or with `GET_PROCESS_APERTURES`.
 
 - [GET_VERSION](ioctl/get_version.md)
 - [CREATE_QUEUE](ioctl/queue/create_queue.md)
 - [UPDATE_QUEUE](ioctl/queue/update_queue.md)
 - [DESTROY_QUEUE](ioctl/queue/destroy_queue.md)
 
+- [AVAILABLE_MEMORY](ioctl/mem/available_memory.md)
+- [ACQUIRE_VM](ioctl/mem/acquire_vm.md)
 
 ## SET_MEMORY_POLICY
 		AMDKFD_IOW(0x04, struct kfd_ioctl_set_memory_policy_args)
 
+* KFD_IOC_CACHE_POLICY_COHERENT 0
+* KFD_IOC_CACHE_POLICY_NONCOHERENT 1
 ### Inputs
 	__u64 alternate_aperture_base;	/* to KFD */
 	__u64 alternate_aperture_size;	/* to KFD */
@@ -140,11 +147,49 @@ __u32 num_of_nodes;
 
 Just like [GET_PROCESS_APERTURES](#get_process_apertures) except there is no limit to the number of nodes.
 
-## ACQUIRE_VM
-		AMDKFD_IOW(0x15, struct kfd_ioctl_acquire_vm_args)
 
 ## ALLOC_MEMORY_OF_GPU
 		AMDKFD_IOWR(0x16, struct kfd_ioctl_alloc_memory_of_gpu_args)
+
+```C
+/* Allocation flags: memory types */
+#define KFD_IOC_ALLOC_MEM_FLAGS_VRAM		(1 << 0)
+#define KFD_IOC_ALLOC_MEM_FLAGS_GTT		(1 << 1)
+#define KFD_IOC_ALLOC_MEM_FLAGS_USERPTR		(1 << 2)
+#define KFD_IOC_ALLOC_MEM_FLAGS_DOORBELL	(1 << 3)
+#define KFD_IOC_ALLOC_MEM_FLAGS_MMIO_REMAP	(1 << 4)
+/* Allocation flags: attributes/access options */
+#define KFD_IOC_ALLOC_MEM_FLAGS_WRITABLE	(1 << 31)
+#define KFD_IOC_ALLOC_MEM_FLAGS_EXECUTABLE	(1 << 30)
+#define KFD_IOC_ALLOC_MEM_FLAGS_PUBLIC		(1 << 29)
+#define KFD_IOC_ALLOC_MEM_FLAGS_NO_SUBSTITUTE	(1 << 28)
+#define KFD_IOC_ALLOC_MEM_FLAGS_AQL_QUEUE_MEM	(1 << 27)
+#define KFD_IOC_ALLOC_MEM_FLAGS_COHERENT	(1 << 26)
+#define KFD_IOC_ALLOC_MEM_FLAGS_UNCACHED	(1 << 25)
+#define KFD_IOC_ALLOC_MEM_FLAGS_EXT_COHERENT	(1 << 24)
+#define KFD_IOC_ALLOC_MEM_FLAGS_CONTIGUOUS	(1 << 23)
+
+/* Allocate memory for later SVM (shared virtual memory) mapping.
+ *
+ * @va_addr:     virtual address of the memory to be allocated
+ *               all later mappings on all GPUs will use this address
+ * @size:        size in bytes
+ * @handle:      buffer handle returned to user mode, used to refer to
+ *               this allocation for mapping, unmapping and freeing
+ * @mmap_offset: for CPU-mapping the allocation by mmapping a render node
+ *               for userptrs this is overloaded to specify the CPU address
+ * @gpu_id:      device identifier
+ * @flags:       memory type and attributes. See KFD_IOC_ALLOC_MEM_FLAGS above
+ */
+struct kfd_ioctl_alloc_memory_of_gpu_args {
+	__u64 va_addr;		/* to KFD */
+	__u64 size;		/* to KFD */
+	__u64 handle;		/* from KFD */
+	__u64 mmap_offset;	/* to KFD (userptr), from KFD (mmap offset) */
+	__u32 gpu_id;		/* to KFD */
+	__u32 flags;
+};
+```
 
 ## FREE_MEMORY_OF_GPU
 		AMDKFD_IOW(0x17, struct kfd_ioctl_free_memory_of_gpu_args)
@@ -190,8 +235,6 @@ Just like [GET_PROCESS_APERTURES](#get_process_apertures) except there is no lim
 ## CRIU_OP
 		AMDKFD_IOWR(0x22, struct kfd_ioctl_criu_args)
 
-## AVAILABLE_MEMORY
-		AMDKFD_IOWR(0x23, struct kfd_ioctl_get_available_memory_args)
 
 ## EXPORT_DMABUF
 		AMDKFD_IOWR(0x24, struct kfd_ioctl_export_dmabuf_args)
