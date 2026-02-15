@@ -1,5 +1,7 @@
 # Userspace API for using a GPU
 
+## Amdgpu memory allocation always uses 4096 byte sized pages.
+
 ## IP blocks
 A gpu is split into multiple types of units responsible for different tasks.
 For example:

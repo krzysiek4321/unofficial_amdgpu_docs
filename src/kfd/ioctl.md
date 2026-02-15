@@ -4,39 +4,10 @@ For more info look into `kernel/include/uapi/linux/kfd_ioctl.h`
 
 Implementation can be found in `kernel/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c`
 
-## GET_VERSION
-Returns version of amdkfd driver.
-
-## CREATE_QUEUE
-		AMDKFD_IOWR(0x02, struct kfd_ioctl_create_queue_args)
-
-### Inputs
-	__u64 ring_base_address;	/* to KFD */
-	__u64 write_pointer_address;	/* to KFD */
-	__u64 read_pointer_address;	/* to KFD */
-
-	__u32 ring_size;		/* to KFD */
-	__u32 gpu_id;		/* to KFD */
-	__u32 queue_type;		/* to KFD */
-	__u32 queue_percentage;	/* to KFD */
-	__u32 queue_priority;	/* to KFD */
-
-	__u64 eop_buffer_address;	/* to KFD */
-	__u64 eop_buffer_size;	/* to KFD */
-	__u64 ctx_save_restore_address; /* to KFD */
-	__u32 ctx_save_restore_size;	/* to KFD */
-	__u32 ctl_stack_size;		/* to KFD */
-	__u32 sdma_engine_id;		/* to KFD */
-
-### Outputs
-	__u64 doorbell_offset;	/* from KFD */
-	__u32 queue_id;		/* from KFD */
-
-## DESTROY_QUEUE
-		AMDKFD_IOWR(0x03, struct kfd_ioctl_destroy_queue_args)
-
-### Inputs
-	__u32 queue_id;		/* to KFD */
+- [GET_VERSION](ioctl/get_version.md)
+- [CREATE_QUEUE](ioctl/queue/create_queue.md)
+- [UPDATE_QUEUE](ioctl/queue/update_queue.md)
+- [DESTROY_QUEUE](ioctl/queue/destroy_queue.md)
 
 
 ## SET_MEMORY_POLICY
@@ -79,17 +50,6 @@ struct {
 } nodes[7];
 __u32 num_of_nodes;
 ```
-
-## UPDATE_QUEUE
-		AMDKFD_IOW(0x07, struct kfd_ioctl_update_queue_args)
-
-### Inputs
-	__u64 ring_base_address;	/* to KFD */
-
-	__u32 queue_id;		/* to KFD */
-	__u32 ring_size;		/* to KFD */
-	__u32 queue_percentage;	/* to KFD */
-	__u32 queue_priority;	/* to KFD */
 
 ## CREATE_EVENT
 		AMDKFD_IOWR(0x08, struct kfd_ioctl_create_event_args)

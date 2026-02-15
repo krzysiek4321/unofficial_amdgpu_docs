@@ -8,6 +8,3 @@ It's a ringbuffer with **rptr**, **wptr** and **size**.
 ## Hardware queues
 
 ## Kernel queues
-
-## User queues
-Read more at <https://docs.kernel.org/gpu/amdgpu/userq.html>
