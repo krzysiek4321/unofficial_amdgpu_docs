@@ -40,6 +40,7 @@
         - [mmap](kfd/mmap.md)
         - [Command Queues](kfd/queue.md)
         - [Doorbells](kfd/doorbell.md)
+        - [Compute Wave Store Resume (CWSR)](kfd/cwsr.md)
 - [Monitoring gpu state](sysfs/overview.md)
     - [Tools](sysfs/tools.md)
 - [Useful tips](tips.md)

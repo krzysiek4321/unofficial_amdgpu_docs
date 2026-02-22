@@ -1,5 +1,8 @@
 # Debug
 
+## Watch points
+There is a maximum of 4 watch points.
+
 ## RUNTIME_ENABLE
     AMDKFD_IOWR(0x25, struct kfd_ioctl_runtime_enable_args)
 
@@ -61,6 +64,21 @@ Unused
 
 ## SET_TRAP_HANDLER
 		AMDKFD_IOW(0x13, struct kfd_ioctl_set_trap_handler_args)
+
+### Required Inputs
+	__u64 tba_addr;		/* to KFD */
+	__u64 tma_addr;		/* to KFD */
+	__u32 gpu_id;		/* to KFD */
+
+#### For dGPUs
+Both `tba_addr` and `tma_addr` are addresses in **GPU memory space**
+
+They must be 256 bytes aligned.
+
+Remember to set EXECUTABLE flags for the memory.
+
+#### For APUs
+Remember to set READ | EXEC flag for the memory.
 
 ## DBG_REGISTER_DEPRECATED
 		AMDKFD_IOW(0x0D, struct kfd_ioctl_dbg_register_args)

@@ -4,6 +4,15 @@
 #### What is this for? Espacially since not all kfd nodes are drm devices.
 Don't know
 
+It turns a GFX VM into a Compute VM, but why would you want to do that?
+
+Maybe to not have to create a new vm again if you already have a Drm vm you will not need
+anymore.
+
+Turns out it's required before allocating gpu memory.
+
+Also initializes CWSR for the process.
+
 ## Required Inputs
 	__u32 drm_fd;	/* to KFD */
 	__u32 gpu_id;	/* to KFD */

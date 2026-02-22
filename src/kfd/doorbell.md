@@ -1,14 +1,21 @@
 # Doorbells
 There is a maximum of 1024 queues per process.
 Each is assigned a doorbell.
-A doorbell can be 32 or 64 bits wide.
 
-So mapping `mmap()` would need to be round_up(1024 * single_doorbell_size_in_bytes, PAGE_SIZE) in size.
+They are automatically created with queues.
 
-### How can I tell if doorbells are 32 or 64 bits wide for a given device?
-Don't know yet.
+## Size
+Doorbell size is device dependent.
+For < gfx901 it's 4 bytes.
+For gfx901+ it's 8 bytes.
 
-I believe they are always 32bit because you are supposed to write a new wptr value and wptr is u32.
+So mapping `mmap()` would need to be `2 * PAGE_SIZE` in size for gfx901+ and `PAGE_SIZE` for older engines.
+
+### Why are doorbells 8 bytes for all newer gpu if a queue has size in u32 and `*wptr` is an index?
+
+## Index
+### How can I tell which address from the mmap doorbells page or pages to write the new wptr to?
+Is it as simple as just `idx = offset & SIZE`?
 
 ## Whais is it for?
 It's purpose is to notify the gpu when we wrote new commands into a queue.

@@ -6,3 +6,4 @@
 * GTT - graphics translation tables, usually means access to CPU's RAM.
 * XCP - sth gpu partition
 * RLC - todo
+* CWSR - compute wave store resume

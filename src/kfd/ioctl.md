@@ -7,6 +7,15 @@ Implementation can be found in `kernel/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c`
 
 You can get **gpu_id** from `/sys/class/kfd/kfd/topology/nodes/*/gpu_id` or with `GET_PROCESS_APERTURES`.
 
+## On errors
+AMDGPU driver doesn't have a clear error api.
+A lot of them get propagated through internal calls, which makes it hard to know which
+error values to expect.
+
+But these errors should be a part of stable ABI.
+
+## IOCTLs
+
 - [GET_VERSION](ioctl/get_version.md)
 
 - [GET_PROCESS_APERTURES](ioctl/apertures.md#get_process_apertures)

@@ -5,6 +5,13 @@ topology info.
 
 Topology can be found in KFD sysfs.
 
+You might also get some more info about a device using the debugger api - device_snapshot functionality.
+
+Be aware devices can be removed at runtime and in such cases these values become obsolete.
+
+Scratch memory is unique per work item.
+LDS memory is unique per work group.
+
 ## GET_PROCESS_APERTURES
 		AMDKFD_IOR(0x06, struct kfd_ioctl_get_process_apertures_args)
 
