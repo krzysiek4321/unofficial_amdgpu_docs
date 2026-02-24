@@ -7,3 +7,4 @@
 * XCP - sth gpu partition
 * RLC - todo
 * CWSR - compute wave store resume
+* HDP - host data path

@@ -48,9 +48,18 @@ __u64 ctx_save_restore_address; /* to KFD */
 __u32 ctx_save_restore_size;	/* to KFD */
 ```
 Required only for `compute*` queues.
-Size must be sufficiently large for a given node.
 
-Actual size is going to be larger to account for debug buffers per each XCC and aligned to PAGE_SIZE.
+It must be user accessible address and it must have a mapping to a bo.
+
+Size must be `>= node.ctl_stack_size + node.wg_data_size`.
+
+Actual BO size must be larger and equal to
+`size + debug_memory_size * num_of_XCC` rounded up to `PAGE_SIZE`.
+
+Look in `kfd_queue_ctx_save_restore_size()` to see how the values above are determined.
+
+#### How is it used?
+todo
 
 ### SDMA engine id
 `__u32 sdma_engine_id;		/* to KFD */`

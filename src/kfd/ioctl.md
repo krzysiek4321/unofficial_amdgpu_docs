@@ -29,6 +29,12 @@ But these errors should be a part of stable ABI.
 - [ACQUIRE_VM](ioctl/mem/acquire_vm.md)
 - [ALLOC_MEMORY_OF_GPU](ioctl/mem/alloc_memory_of_gpu.md)
 
+- [CREATE_EVENT](ioctl/event.md#create_event)
+- [DESTROY_EVENT](ioctl/event.md#destroy_event)
+- [SET_EVENT](ioctl/event.md#set_event)
+- [RESET_EVENT](ioctl/event.md#reset_event)
+- [WAIT_EVENTS](ioctl/event.md#wait_events)
+
 
 ## GET_CLOCK_COUNTERS
 		AMDKFD_IOWR(0x05, struct kfd_ioctl_get_clock_counters_args)
