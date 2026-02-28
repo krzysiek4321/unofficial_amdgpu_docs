@@ -19,6 +19,9 @@ It is always `2 * PAGE_SIZE` in size.
 TBA starts at `0` offset.
 TMA starts at `1.5 * PAGE_SIZE` offset.
 
+### Reserved Virtual Address
+See `AMDGPU_VA_RESERVED_TRAP_START`
+
 ### Read more
 You can find the assigned trap handlers in `kernel/drivers/gpu/drm/amd/amdkfd/kfd_device.c`.
 
@@ -56,6 +59,7 @@ The memory address is statically reserved in the gpu address space. See `cwsr_ba
 
 The memory is formally allocated during `acquire_vm` ioctl at the cwsr_base gpu addresses,
 with flags GTT | EXECUTABLE | NO_SUBSTITUTE.
+It gets pinned to the GTT.
 
 tba_address = cwsr_base
 tma_address = tba_address + tma_offset.

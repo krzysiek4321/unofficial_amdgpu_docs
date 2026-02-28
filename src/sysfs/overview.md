@@ -4,6 +4,9 @@ there are some files available in sysfs to read and modify the gpu's or kernel m
 
 ## /sys/kernel/debug/dri/
 
+amdgpu_evict_gtt - manually triggers an eviction of GTT bos
+amdgpu_evict_vram - manuall triggers an eviction of VRAM bos
+
 ## /sys/kernel/debug/kfd/
 
 ## /sys/class/kfd/kfd/
@@ -11,3 +14,5 @@ there are some files available in sysfs to read and modify the gpu's or kernel m
 ## /sys/class/drm/
 
 ## /sys/module/amdgpu/
+
+## /sys/fs/cgroup/dmem.*

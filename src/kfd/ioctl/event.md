@@ -66,6 +66,8 @@ It's only used by SIGNAL and DEBUG events.
 It's alloced either by the user on the GPU in GTT domain and passed in [CREATE_EVENT](#create_event) or automatically created in cpu kernel space
 but the kernel is going to see it as if there is only 256 slots.
 
+The underlying BO also gets pinned to GTT.
+
 `Page[event_id] = ...`
 
 The signal**er** will **write 1** into slots he wishes to signal before sending an interrupt to the process.

@@ -51,6 +51,16 @@ But these errors should be a part of stable ABI.
 ## SET_SCRATCH_BACKING_VA
 		AMDKFD_IOWR(0x11, struct kfd_ioctl_set_scratch_backing_va_args)
 
+```C
+struct kfd_ioctl_set_scratch_backing_va_args {
+	__u64 va_addr;	/* to KFD */
+	__u32 gpu_id;	/* to KFD */
+	__u32 pad;
+};
+```
+
+Only used for no CP scheduling mode.
+
 ## GET_TILE_CONFIG
 		AMDKFD_IOWR(0x12, struct kfd_ioctl_get_tile_config_args)
 

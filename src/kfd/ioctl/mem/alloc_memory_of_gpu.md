@@ -8,6 +8,10 @@ It just allocated a doorbell page.
 
 It seems domain should have been an enum and not bitflags.
 
+#### What if I assign the same VA to multiple allocations?
+Nothing yet. Only when mappping the memory to gpus the VAs get checked.
+You'll get error on conflict.
+
 ```C
 /* Allocation flags: memory types */
 #define KFD_IOC_ALLOC_MEM_FLAGS_VRAM		(1 << 0)
@@ -38,3 +42,5 @@ It seems domain should have been an enum and not bitflags.
 
 ## Outputs
 	__u64 handle;		/* from KFD */
+
+- ENODEV - you forgot to acquire_vm first

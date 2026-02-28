@@ -1,5 +1,8 @@
 # ioctl
 
+First is the name of the kernel function corresponding to the ioctl.
+Second are the drm permissions necessary to access the ioctl.
+
 Check `kernel/drivers/gpu/drm/drm_ioctl.c` for more info.
 
 ## AMDGPU specific
@@ -79,7 +82,10 @@ drm_version, DRM_RENDER_ALLOW),
 drm_getunique, 0),
 
 ### GET_MAGIC
-drm_getmagic, 0),
+drm_getmagic, 0
+
+Called by the node which needs to be authenticated.
+Procudes a magic value to be passed to the process holding a master.
 
 ### GET_CLIENT
 drm_getclient, 0),
@@ -107,14 +113,28 @@ drm_noop, DRM_AUTH|DRM_MASTER|DRM_ROOT_ONLY),
 drm_noop, DRM_AUTH|DRM_MASTER|DRM_ROOT_ONLY),
 
 ### AUTH_MAGIC
-drm_authmagic, DRM_MASTER),
+drm_authmagic, DRM_MASTER
 
+Takes the magic token, searches for corresponding opened drm_node file (client) and set's it as authenticated.
 
 ### SET_MASTER
 drm_setmaster_ioctl, 0),
 
+Returns:
+- 0 if successful or was already master
+- EACCESS if not capable(CAP_SYS_ADMIN) **and** (this client was never a master or it was a master but current process's thread group doesn't match the clients tgid)
+- EBUSY if we have access but there is a master set for the device
+- EINVAL if we have access, there is no master set for device and this client doesn't have a master linked
+- ENOMEM if couldn't allocate memory for master struct
+
 ### DROP_MASTER
-drm_dropmaster_ioctl, 0),
+drm_dropmaster_ioctl, 0
+
+Returns:
+- EACCESS if not capable(CAP_SYS_ADMIN) **and** (this client was never a master or it was a master but current process's thread group doesn't match the clients tgid)
+- EINVAL if we are not a master
+    or if we are a master and our lease owner isn't current dev master
+    or if there is no current dev master
 
 
 ### ADD_DRAW
@@ -155,6 +175,9 @@ drm_mode_getresources, 0),
 
 ### PRIME_HANDLE_TO_FD
 drm_prime_handle_to_fd_ioctl, DRM_RENDER_ALLOW),
+
+- EPERM - if you try to export a USERPTR memory
+    or underlying BO has AMDGPU_GEM_CREATE_VM_ALWAYS_VALID flag set
 
 ### PRIME_FD_TO_HANDLE
 drm_prime_fd_to_handle_ioctl, DRM_RENDER_ALLOW),

@@ -3,16 +3,32 @@ It's a commond api for doing graphics on linux.
 
 Some parts of it are intentionally driver specific.
 
-## Files
-Accessed via **/dev/dri/card(N)** or **/dev/dri/renderD(M)**. Each device should get it's own file in **/dev/dri**.
+## Files / clients
+Opening **/dev/dri/card%d** gives a unique DRM_MINOR_PRIMARY client.
+Opening **/dev/dri/renderD%d** gives a unique DRM_MINOR_RENDER client.
+Opening **/dev/dri/accel%d** gives a unique DRM_MINOR_ACCEL client.
 
-## Differences
-The **card(N)** file is reserved for so called DRM master. Only one master can be using a device at a time.
-You can switch VT (chvt command) to have multiple masters running, but only one will have access to the gpu at a time.
-Compositor is ususally the master.
+Each gpu should get a primary and render files.
 
-The **renderD(M)** file is used by client applications, but ususally need to first obtain permission - called auth token - from master to
-do things with the device. It has a restricted set of available operations comparred to the above.
+You'll most likely want to use the RENDER client.
+
+If you need to have multiple file descriptors to a drm file simply dupplicate them with `dup()`.
+
+## Permission structure
+`drm_ioctl_permit()` is used to determine if the user have sufficient permisions to invoke an IOCTL.
+
+These are the relevand flags set for IOCTLs:
+- DRM_ROOT_ONLY - only allow when capable(CAP_SYS_ADMIN)
+- DRM_AUTH - only allow authenticated render clients.
+- DRM_MASTER - only allow current master
+- DRM_RENDER_ALLOW - unless set, render clients not allowed
+
+You can see currently existing drm_file and info if they are master or authenticated
+in corresponding drm debugfs `/sys/kernel/debug/dri/*/clients`.
+
+### MASTER
+There can be at most only one, set for a device, at a time.
+You might get master status by opening a **primary client** or using `SET_MASTER` ioctl on a **primary client** after the previous master closed or used `DROP_MASTER` ioctl.
 
 ## Reference counted
 Opening these files return a reference counted object for this process, which means opening the files multiple times or dupplicating these file descriptors still reference the same object.
