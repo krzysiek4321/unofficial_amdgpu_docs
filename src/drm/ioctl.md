@@ -5,6 +5,8 @@ Second are the drm permissions necessary to access the ioctl.
 
 Check `kernel/drivers/gpu/drm/drm_ioctl.c` for more info.
 
+Each ioctl can return ENODEV if corresponding drm device got unpluged.
+
 ## AMDGPU specific
 Add `AMDGPU_` to get C definitions.
 <details>
@@ -89,6 +91,15 @@ Procudes a magic value to be passed to the process holding a master.
 
 ### GET_CLIENT
 drm_getclient, 0),
+
+Usefull only for veryfing if client is authenticated.
+You must set `idx` to 0.
+The `auth` field will be true if authenticated.
+The `pid` field is also set.
+All other fields are meaningless.
+
+Returns:
+- EINVAL if idx is not set to 0
 
 ### GET_STATS
 drm_getstats, 0),

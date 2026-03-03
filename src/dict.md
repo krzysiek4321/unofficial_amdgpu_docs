@@ -15,3 +15,5 @@
 * SEQ64 - todo
 * GMC - graphic memory controller
 * MES - MicroEngine Scheduler
+* PTE - page table entry
+* PDE - page directory entry
