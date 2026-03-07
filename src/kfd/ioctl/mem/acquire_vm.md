@@ -13,6 +13,11 @@ Turns out it's required before allocating gpu memory.
 
 Also initializes CWSR for the process.
 
+It changes slighly how drm ioctls behave.
+Grep for `is_compute_context`.
+In gem_open when importing a gem it now also calls `amdgpu_amdkfd_bo_validate_and_fence()`, which might error.
+Also when handling VM fault it slightly changes logic.
+
 ## Required Inputs
 	__u32 drm_fd;	/* to KFD */
 	__u32 gpu_id;	/* to KFD */

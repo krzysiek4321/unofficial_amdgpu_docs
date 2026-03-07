@@ -18,7 +18,7 @@ If you need to have multiple file descriptors to a drm file simply dupplicate th
 `drm_ioctl_permit()` is used to determine if the user have sufficient permisions to invoke an IOCTL.
 
 These are the relevand flags set for IOCTLs:
-- DRM_ROOT_ONLY - only allow when capable(CAP_SYS_ADMIN)
+- DRM_ROOT_ONLY - only allow when capable(CAP_SYS_ADMIN), effectively deprecated
 - DRM_AUTH - only allow authenticated **primary** clients.
 - DRM_MASTER - only allow current master
 - DRM_RENDER_ALLOW - unless set, render clients not allowed

@@ -15,6 +15,37 @@ Add `AMDGPU_` to get C definitions.
 ### GEM_CREATE
 amdgpu_gem_create_ioctl, DRM_AUTH|DRM_RENDER_ALLOW
 
+#### Domains
+- CPU - 0x1
+- GTT - 0x2
+- VRAM - 0x4
+
+##### Cannot have CPU access
+- GDS - 0x8
+- GWS - 0x10
+- OA - 0x20
+
+- DOORBELL - 0x40
+##### Not allowed
+- MMIO_REMAP - 0x80
+
+
+#### Flags
+- CPU_ACCESS_REQUIRED
+- NO_CPU_ACCESS
+- CPU_GTT_USWC
+- VRAM_CLEARED
+- VM_ALWAYS_VALID
+- EXPLICIT_SYNC
+- VRAM_WIPE_ON_RELEASE
+- ENCRYPTED - requires TMZ to be enabled
+- GFX12_DCC
+- DISCARDABLE
+- COHERENT
+- UNCACHED
+- EXT_COHERENT
+
+
 ###	CTX
 amdgpu_ctx_ioctl, DRM_AUTH|DRM_RENDER_ALLOW
 
