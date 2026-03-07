@@ -1,7 +1,9 @@
 # SMI
 
-Creates an opened file descriptor for listening to system events
+Creates an opened file descriptor for listening to gpu's system events
 specific to this process or all processess.
+
+Calling multiple times creates new listeners and allocates memory.
 
 You can read from the fd to get events in text form
 One event per line.
@@ -18,12 +20,18 @@ Where bit at position X means that events with type X will be reported.
 You can poll the fd to wait until events are available to read.
 
 Underneath it uses a FIFO buffer 8192 bytes in size.
+If you don't consume events the fifo will run out of space and new events will be droped.
 
 
 ## SMI_EVENTS
     AMDKFD_IOWR(0x1F, struct kfd_ioctl_smi_events_args)
 
 ```C
+struct kfd_ioctl_smi_events_args {
+	__u32 gpuid;	/* to KFD */
+	__u32 anon_fd;	/* from KFD */
+};
+
 /*
  * KFD SMI(System Management Interface) events
  */
@@ -80,8 +88,40 @@ enum KFD_SVM_UNMAP_TRIGGERS {
 #define KFD_SMI_EVENT_MASK_FROM_INDEX(i) (1ULL << ((i) - 1))
 #define KFD_SMI_EVENT_MSG_SIZE	96
 
-struct kfd_ioctl_smi_events_args {
-	__u32 gpuid;	/* to KFD */
-	__u32 anon_fd;	/* from KFD */
-};
+#define KFD_EVENT_FMT_UPDATE_GPU_RESET(reset_seq_num, reset_cause)\
+		"%x %s\n", (reset_seq_num), (reset_cause)
+
+#define KFD_EVENT_FMT_THERMAL_THROTTLING(bitmask, counter)\
+		"%llx:%llx\n", (bitmask), (counter)
+
+#define KFD_EVENT_FMT_VMFAULT(pid, task_name)\
+		"%x:%s\n", (pid), (task_name)
+
+#define KFD_EVENT_FMT_PAGEFAULT_START(ns, pid, addr, node, rw)\
+		"%lld -%d @%lx(%x) %c\n", (ns), (pid), (addr), (node), (rw)
+
+#define KFD_EVENT_FMT_PAGEFAULT_END(ns, pid, addr, node, migrate_update)\
+		"%lld -%d @%lx(%x) %c\n", (ns), (pid), (addr), (node), (migrate_update)
+
+#define KFD_EVENT_FMT_MIGRATE_START(ns, pid, start, size, from, to, prefetch_loc,\
+		preferred_loc, migrate_trigger)\
+		"%lld -%d @%lx(%lx) %x->%x %x:%x %d\n", (ns), (pid), (start), (size),\
+		(from), (to), (prefetch_loc), (preferred_loc), (migrate_trigger)
+
+#define KFD_EVENT_FMT_MIGRATE_END(ns, pid, start, size, from, to, migrate_trigger, error_code) \
+		"%lld -%d @%lx(%lx) %x->%x %d %d\n", (ns), (pid), (start), (size),\
+		(from), (to), (migrate_trigger), (error_code)
+
+#define KFD_EVENT_FMT_QUEUE_EVICTION(ns, pid, node, evict_trigger)\
+		"%lld -%d %x %d\n", (ns), (pid), (node), (evict_trigger)
+
+#define KFD_EVENT_FMT_QUEUE_RESTORE(ns, pid, node, rescheduled)\
+		"%lld -%d %x %c\n", (ns), (pid), (node), (rescheduled)
+
+#define KFD_EVENT_FMT_UNMAP_FROM_GPU(ns, pid, addr, size, node, unmap_trigger)\
+		"%lld -%d @%lx(%lx) %x %d\n", (ns), (pid), (addr), (size),\
+		(node), (unmap_trigger)
+
+#define KFD_EVENT_FMT_PROCESS(pid, task_name)\
+		"%x %s\n", (pid), (task_name)
 ```
