@@ -1,5 +1,6 @@
 # Summary
 [About This Book](README.md)
+[Licenses](LICENSE.md)
 - [Hardware](hardware.md)
     - [Cache](cache.md)
 - [Using the gpu](uapi.md)
