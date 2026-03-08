@@ -2,7 +2,13 @@
 
 Requires CONFIG_HSA_AMD_SVM to be enabled when building amdgpu module.
 
-Allows sharing a part of virtual address space between GPUs and CPUs.
+Allows sharing virtual address space between GPUs and CPU.?
+
+#### How is that different from cpu mapping?
+todo
+
+#### How do I obtain a cpu address for kfd memory handle?
+todo
 
 ## SVM
     AMDKFD_IOWR(0x20, struct kfd_ioctl_svm_args)
@@ -117,3 +123,37 @@ enum kfd_ioctl_svm_attr_type {
 	KFD_IOCTL_SVM_ATTR_GRANULARITY
 };
 ```
+
+## SET_XNACK_MODE
+    AMDKFD_IOWR(0x21, struct kfd_ioctl_set_xnack_mode_args)
+
+Requires CONFIG_HSA_AMD_SVM=y when building amdgpu module and
+it's good to set amdgpu.noretry=0 in module parameters,
+because the default usually means OFF.
+
+Allows you to query if xnack is enabled if you provide a negative value.
+Also you can try to set xnack mode (true/false).
+
+XNACK is about changing how gpu behaves when a page fault happens.
+The goal is to gracefully recover from page faults.
+
+To learn more grep amdgpu source code for `noretry`.
+
+```C
+struct kfd_ioctl_set_xnack_mode_args {
+	__s32 xnack_enabled;
+};
+```
+#### When can I change XNACK mode?
+Only when your process has no queues running.
+
+#### Which gpus does it apply to?
+No older than gfx901, but you need to check if your gpu supports it.
+See [llvm amdgpu target features](https://llvm.org/docs/AMDGPUUsage.html#processors).
+You might notice it says some gfx8 gpus have xnack, but linux source code takes priority.
+
+It seems to me this feature has been abandoned for gpus older than gfx103.
+
+#### Can I run my compiled shaders with XNACK on?
+You can run a regular shader, but unless it was compiled with xnack support it may not use it and run slower than with XNACK off.
+See [xnack target feature](https://llvm.org/docs/AMDGPUUsage.html#target-features).

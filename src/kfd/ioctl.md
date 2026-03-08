@@ -35,6 +35,9 @@ But these errors should be a part of stable ABI.
 - [RESET_EVENT](ioctl/event.md#reset_event)
 - [WAIT_EVENTS](ioctl/event.md#wait_events)
 
+- [SVM](ioctl/svm.md#svm)
+- [SET_XNACK_MODE](ioctl/svm.md#set_xnack_mode)
+
 
 ## GET_CLOCK_COUNTERS
 		AMDKFD_IOWR(0x05, struct kfd_ioctl_get_clock_counters_args)
@@ -79,6 +82,3 @@ Only used for no CP scheduling mode.
 
 ## ALLOC_QUEUE_GWS
 		AMDKFD_IOWR(0x1E, struct kfd_ioctl_alloc_queue_gws_args)
-
-## SET_XNACK_MODE
-		AMDKFD_IOWR(0x21, struct kfd_ioctl_set_xnack_mode_args)
