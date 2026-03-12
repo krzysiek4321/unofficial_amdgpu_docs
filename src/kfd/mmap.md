@@ -8,8 +8,7 @@ Mmap's offset is split into bitfields:
 | 46  |  0  | ...    |
 
 ## GPU_ID
-Specific to the current device topology.
-Can be viewed at `/sys/class/kfd/kfd/topology`.
+{{#include ./gpu_id.md}}
 
 ## MMAP_TYPE
 

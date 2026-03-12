@@ -1,11 +1,9 @@
-# Supported IOCTLS (kernel 6.17, kfd 1.18)
+# IOCTLs
 Add `AMDKFD_IOC_` to each to get C definitions.
 
 For more info look into `kernel/include/uapi/linux/kfd_ioctl.h`
 
 Implementation can be found in `kernel/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c`
-
-You can get **gpu_id** from `/sys/class/kfd/kfd/topology/nodes/*/gpu_id` or with `GET_PROCESS_APERTURES`.
 
 ## On errors
 AMDGPU driver doesn't have a clear error api.
@@ -14,71 +12,57 @@ error values to expect.
 
 But these errors should be a part of stable ABI.
 
-## IOCTLs
+## Uncategorized
 
 - [GET_VERSION](ioctl/get_version.md)
-
-- [GET_PROCESS_APERTURES](ioctl/apertures.md#get_process_apertures)
-- [GET_PROCESS_APERTURES_NEW](ioctl/apertures.md#get_process_apertures_new)
-
-- [CREATE_QUEUE](ioctl/queue/create_queue.md)
-- [UPDATE_QUEUE](ioctl/queue/update_queue.md)
-- [DESTROY_QUEUE](ioctl/queue/destroy_queue.md)
-
-- [AVAILABLE_MEMORY](ioctl/mem/available_memory.md)
-- [ACQUIRE_VM](ioctl/mem/acquire_vm.md)
-- [ALLOC_MEMORY_OF_GPU](ioctl/mem/alloc_memory_of_gpu.md)
-
-- [CREATE_EVENT](ioctl/event.md#create_event)
-- [DESTROY_EVENT](ioctl/event.md#destroy_event)
-- [SET_EVENT](ioctl/event.md#set_event)
-- [RESET_EVENT](ioctl/event.md#reset_event)
-- [WAIT_EVENTS](ioctl/event.md#wait_events)
-
+- [SET_MEMORY_POLICY](./acquire_vm.md#set_memory_policy)
+- [GET_CLOCK_COUNTERS](./perf.md#get_clock_counters)
 - [SVM](ioctl/svm.md#svm)
 - [SET_XNACK_MODE](ioctl/svm.md#set_xnack_mode)
+- [CRIU_OP](./ioctl/criu.md#criu_op)
+- [SMI_EVENTS](./ioctl/smi.md#smi_events)
 
+## Query devices
+- [GET_PROCESS_APERTURES](./apertures.md#get_process_apertures)
+- [GET_PROCESS_APERTURES_NEW](./apertures.md#get_process_apertures_new)
 
-## GET_CLOCK_COUNTERS
-		AMDKFD_IOWR(0x05, struct kfd_ioctl_get_clock_counters_args)
+## Queues
+- [CREATE_QUEUE](./queues.md#create_queue)
+- [UPDATE_QUEUE](./queues.md#update_queue)
+- [DESTROY_QUEUE](./queues.md#destroy_queue)
+- [SET_CU_MASK](./queues.md#set_cu_mask)
+- [GET_QUEUE_WAVE_STATE](./queues.md#get_queue_wave_state)
+- [ALLOC_QUEUE_GWS](./queues.md#alloc_queue_gws)
 
-### Inputs
-	__u32 gpu_id;		/* to KFD */
+## Memory operations
+- [ACQUIRE_VM](./acquire_vm.md#acquire_vm)
+- [AVAILABLE_MEMORY](./alloc.md#available_memory)
+- [ALLOC_MEMORY_OF_GPU](./alloc.md#alloc_memory_of_gpu)
+- [FREE_MEMORY_OF_GPU](./alloc.md#free_memory_of_gpu)
+- [MAP_MEMORY_TO_GPU](./va_mapping.md#map_memory_to_gpu)
+- [UNMAP_MEMORY_FROM_GPU](./va_mapping.md#unmap_memory_from_gpu)
+- [SET_SCRATCH_BACKING_VA](./va_mapping.md#set_scratch_backing_va)
+- [GET_TILE_CONFIG](./tiling.md#get_tile_config)
 
-### Outputs
-	__u64 gpu_clock_counter;	/* from KFD */
-	__u64 cpu_clock_counter;	/* from KFD */
-	__u64 system_clock_counter;	/* from KFD */
-	__u64 system_clock_freq;	/* from KFD */
+### DMABUF
+- [GET_DMABUF_INFO](./dmabuf.md#get_dmabuf_info)
+- [IMPORT_DMABUF](./dmabuf.md#import_dmabuf)
+- [EXPORT_DMABUF](./dmabuf.md#export_dmabuf)
 
-## SET_SCRATCH_BACKING_VA
-		AMDKFD_IOWR(0x11, struct kfd_ioctl_set_scratch_backing_va_args)
+## Events
+- [CREATE_EVENT](./events.md#create_event)
+- [DESTROY_EVENT](./events.md#destroy_event)
+- [SET_EVENT](./events.md#set_event)
+- [RESET_EVENT](./events.md#reset_event)
+- [WAIT_EVENTS](./events.md#wait_events)
 
-```C
-struct kfd_ioctl_set_scratch_backing_va_args {
-	__u64 va_addr;	/* to KFD */
-	__u32 gpu_id;	/* to KFD */
-	__u32 pad;
-};
-```
+## Debug
+- [SET_TRAP_HANDLER](./ioctl/dbg.md#set_trap_handler)
+- [RUNTIME_ENABLE](./ioctl/dbg.md#runtime_enable)
+- [DBG_TRAP](./ioctl/dbg.md#dbg_trap)
 
-Only used for no CP scheduling mode.
-
-## GET_TILE_CONFIG
-		AMDKFD_IOWR(0x12, struct kfd_ioctl_get_tile_config_args)
-
-## SET_CU_MASK
-		AMDKFD_IOW(0x1A, struct kfd_ioctl_set_cu_mask_args)
-
-### Inputs
-	__u32 queue_id;		/* to KFD */
-	__u32 num_cu_mask;		/* to KFD */
-	__u64 cu_mask_ptr;		/* to KFD */
-
-**num_cu_mask** must be multiple of 32, because its unit is bit count and mask elements are uint32
-
-## GET_QUEUE_WAVE_STATE
-		AMDKFD_IOWR(0x1B, struct kfd_ioctl_get_queue_wave_state_args)
-
-## ALLOC_QUEUE_GWS
-		AMDKFD_IOWR(0x1E, struct kfd_ioctl_alloc_queue_gws_args)
+### Deprecated
+- [DBG_REGISTER_DEPRECATED](./ioctl/dbg.md#dbg_register_deprecated)
+- [DBG_UNREGISTER_DEPRECATED](./ioctl/dbg.md#dbg_unregister_deprecated)
+- [DBG_ADDRESS_WATCH_DEPRECATED](./ioctl/dbg.md#dbg_address_watch_deprecated)
+- [DBG_WAVE_CONTROL_DEPRECATED](./ioctl/dbg.md#dbg_wave_control_deprecated)
