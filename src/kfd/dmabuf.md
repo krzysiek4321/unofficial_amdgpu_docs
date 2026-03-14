@@ -1,17 +1,25 @@
 # Sharing memory between processes
+You can also use dmabuf to import GEM objects and export into GEM subsystem.
+
+It also allows for a Buffer Object to be mapped into multiple Virtual Adresses.
 
 ## IOCTLs
 ### get_dmabuf_info
     AMDKFD_IOWR(0x1C, struct kfd_ioctl_get_dmabuf_info_args)
 
+#### Inputs
+The provided dmabuf must point to a GEM object.
+
 Only VRAM and GTT bos are supported.
 
-It doesn't return all flags, only domain and PUBLIC.
+#### Outputs
+Returned flags are kfd alloc flags and only include: GTT, VRAM and PUBLIC.
 
-Size is memory size in bytes.
+Size is buffer object's size in bytes.
 
 Metadata size and layout is entirely up to user space application
 which set it with [`GEM_METADATA`](../drm/ioctl.md#gem_metadata) ioctl.
+But it's no larger than 64 uint32.
 
 - EINVAL if failed to find a kfd device the process have access to (via cgroup)
     or metadata_size is too small
@@ -21,6 +29,14 @@ which set it with [`GEM_METADATA`](../drm/ioctl.md#gem_metadata) ioctl.
 
 ### import_dmabuf
     AMDKFD_IOWR(0x1D, struct kfd_ioctl_import_dmabuf_args)
+
+#### Inputs
+    __u64 va_addr;
+    __u32 gpu_id;
+    __u32 dmabuf_fd;
+
+#### Outputs
+    __u64 handle;
 
 
 ### export_dmabuf

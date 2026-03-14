@@ -1,4 +1,8 @@
 # Mapping memory to GPU's address space
+VA mapping is designed to that multiple gpus will map the given buffer object
+into the same address for all specified gpus.
+
+It's possible to have a BO mapped into multiple addresses thanks to dmabuf import.
 
 ## Virtual Addresses
 They are assigned in 4KiB pages, so

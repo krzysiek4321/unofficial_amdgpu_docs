@@ -105,6 +105,28 @@ amdgpu_userq_wait_ioctl, DRM_AUTH|DRM_RENDER_ALLOW),
 ## Drm common
 Add `DRM_IOCTL_` to get C definitions.
 
+### Master status and authentication
+- [SET_MASTER](#set_master)
+- [DROP_MASTER](#drop_master)
+- [GET_MAGIC](#get_magic)
+- [AUTH_MAGIC](#auth_magic)
+
+### Sharing between processes
+- [GEM_FLINK](#gem_flink)
+- [GEM_OPEN](#gem_open)
+- [PRIME_HANDLE_TO_FD](#prime_handle_to_fd)
+- [PRIME_FD_TO_HANDLE](#prime_fd_to_handle)
+
+### Deprecated
+- [ADD_DRAW](#add_draw)
+- [RM_DRAW](#rm_draw)
+- [FINISH](#finish)
+- [UPDATE_DRAW](#update_draw)
+- [MODE_ATTACHMODE](#mode_attachmode)
+- [MODE_DETACHMODE](#mode_detachmode)
+- [BLOCK](#block)
+- [UNBLOCK](#unblock)
+
 <details>
 <summary>click to expand</summary>
 

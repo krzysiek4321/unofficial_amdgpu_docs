@@ -4,6 +4,7 @@
 - [Hardware](hardware.md)
     - [Cache](cache.md)
 - [Using the gpu](uapi.md)
+- [Buffer Object Metadata](metadata.md)
 - [DRM](drm/overview.md)
     - [flush](drm/flush.md)
     - [mmap](drm/mmap.md)
