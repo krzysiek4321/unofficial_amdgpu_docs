@@ -17,3 +17,9 @@
 * MES - MicroEngine Scheduler
 * PTE - page table entry
 * PDE - page directory entry
+* SRIOV - single root I/O virtualization
+* SRIOV_VF - SRIOV virtual function
+* CE - constant engine
+* DE - drawing engine
+* FAMILY_SI - southern island, GCN1
+* SUA - system unified address

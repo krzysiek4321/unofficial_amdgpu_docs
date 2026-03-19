@@ -12,6 +12,7 @@ amdgpu_evict_vram - manuall triggers an eviction of VRAM bos
 ## /sys/class/kfd/kfd/
 
 ## /sys/class/drm/
+enforce_isolation - set policy to cleanup resources between jobs
 
 ## /sys/module/amdgpu/
 

@@ -13,6 +13,7 @@
     - [read](drm/read.md)
     - [/proc/\*/fdinfo/\*](drm/fdinfo.md)
     - [GEM objects](drm/gem.md)
+    - [Command Submission](drm/cs.md)
     - [Modesetting](drm/kms.md)
     - [UserQ](drm/userq.md)
 - [KFD](kfd/overview.md)

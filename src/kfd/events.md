@@ -9,6 +9,7 @@ Be aware these events are hard to tie to specific gpu actions or commands.
 
 `kfd_signal_poison_consumed_event()` will send SIGBUS to the process.
 
+
 ## Types
 These are userspace exposed types.
 
@@ -28,6 +29,8 @@ These are userspace exposed types.
 These are types actually used in kernel module code with known data layout in [WAIT_EVENTS](#wait_events).
 
 #### SIGNAL, DEBUG_EVENT
+These are the kfd's version of **fences**.
+
 Signaled with `kfd_signal_event_interrupt()` in kernel, generally it's either CP_END_OF_PIPE, SDMA_TRAP or SQ_INTERRUPT_MSG.
 
 #### HW_EXCEPTION
@@ -74,6 +77,94 @@ The signal**er** will **write 1** into slots he wishes to signal before sending 
 
 Can be [mmaped](../mmap.md#2---events).
 
+## Signal events
+
+### How can I tell the gpu to signal a partiluar event_id?
+The signal page must be manually created in GTT domain and VA mapped.
+For these to work.
+
+Generally grep for `ring_emit_fence` and `INT_SEL`.
+
+#### From RDNA code
+Depending on gpu generation it passes 8, 23 or 24 bits from event_id.
+```
+v_mov_b32 v0, $ADDR_LOW(SIGNAL_PAGE + event_id)
+v_mov_b32 v1, $ADDR_HI(SIGNAL_PAGE + event_id)
+v_mov_b32 v2, 1
+v_mov_b32 v3, 0
+global_store_dwordx2 v[0:1], v[2:3], off
+
+s_waitcnt 0
+
+s_mov m0, $EVENT_ID
+s_sendmsg sendmsg(MSG_INTERRUPT)
+```
+
+#### From SDMA commands written to ring buffer
+It passes 28 bits from event_id.
+
+```C
+    // SDMA v5.2
+	amdgpu_ring_write(ring, SDMA_PKT_HEADER_OP(SDMA_OP_FENCE) |
+			  SDMA_PKT_FENCE_HEADER_MTYPE(0x3)); /* Ucached(UC) */
+	amdgpu_ring_write(ring, lower_32_bits(signal_page + event_id));
+	amdgpu_ring_write(ring, upper_32_bits(signal_page + event_id));
+	amdgpu_ring_write(ring, lower_32_bits(1));
+
+    amdgpu_ring_write(ring, SDMA_PKT_HEADER_OP(SDMA_OP_FENCE) |
+              SDMA_PKT_FENCE_HEADER_MTYPE(0x3));
+    amdgpu_ring_write(ring, lower_32_bits(signal_page + event_id + 4));
+    amdgpu_ring_write(ring, upper_32_bits(signal_page + event_id + 4));
+    amdgpu_ring_write(ring, upper_32_bits(0));
+
+    /* generate an interrupt */
+    amdgpu_ring_write(ring, SDMA_PKT_HEADER_OP(SDMA_OP_TRAP));
+    amdgpu_ring_write(ring, SDMA_PKT_TRAP_INT_CONTEXT_INT_CONTEXT(event_id));
+```
+
+#### From compute ring buffer
+It passes 28 bits from event_id.
+
+Notice it writes event_id into `signal_page[event_id]`, because there is no mechanism to
+provide a separate argument for the interrupt.
+
+##### Via PACKET3_EVENT_WRITE_EOP
+```C
+    void* addr = signal_page + event_id;
+	amdgpu_ring_write(ring, PACKET3(PACKET3_EVENT_WRITE_EOP, 4));
+	amdgpu_ring_write(ring, (EOP_TCL1_ACTION_EN |
+				 EOP_TC_ACTION_EN |
+				 EOP_TC_WB_ACTION_EN |
+				 EVENT_TYPE(CACHE_FLUSH_AND_INV_TS_EVENT) |
+				 EVENT_INDEX(5) |
+				 (exec ? EOP_EXEC : 0)));
+	amdgpu_ring_write(ring, addr & 0xfffffffc);
+	amdgpu_ring_write(ring, (upper_32_bits(addr) & 0xffff) |
+			  DATA_SEL(2) | INT_SEL(2));
+	amdgpu_ring_write(ring, event_id);
+	amdgpu_ring_write(ring, 0);
+```
+##### Via PACKET3_RELEASE_MEM
+Since gfx9
+```C
+    void* addr = signal_page + event_id;
+	amdgpu_ring_write(ring, PACKET3(PACKET3_RELEASE_MEM, 6));
+	amdgpu_ring_write(ring, (PACKET3_RELEASE_MEM_GCR_SEQ |
+				 PACKET3_RELEASE_MEM_GCR_GL2_WB |
+				 PACKET3_RELEASE_MEM_GCR_GLM_INV | /* must be set with GLM_WB */
+				 PACKET3_RELEASE_MEM_GCR_GLM_WB |
+				 PACKET3_RELEASE_MEM_CACHE_POLICY(3) |
+				 PACKET3_RELEASE_MEM_EVENT_TYPE(CACHE_FLUSH_AND_INV_TS_EVENT) |
+				 PACKET3_RELEASE_MEM_EVENT_INDEX(5)));
+	amdgpu_ring_write(ring, (PACKET3_RELEASE_MEM_DATA_SEL(2) |
+				 PACKET3_RELEASE_MEM_INT_SEL(2)));
+	amdgpu_ring_write(ring, lower_32_bits(addr));
+	amdgpu_ring_write(ring, upper_32_bits(addr));
+	amdgpu_ring_write(ring, event_id);
+	amdgpu_ring_write(ring, 0);
+	amdgpu_ring_write(ring, 0);
+```
+
 ## IOCTLs
 
 ### CREATE_EVENT
@@ -100,7 +191,7 @@ You are passing ownership of this BO here and freeing it is not allowed.
 Also you have to make sure you pass a BO only once during first `CREATE_EVENT` call.
 
 But you can also leave it empty and the memory will be allocated in kernel space,
-but will it be accessible to the gpu?
+but it will not be accessible to the gpu.
 
 ##### What is node_id for?
 
@@ -118,7 +209,10 @@ You can use `event_page_offset` in [mmap](../mmap.md#2---events).
 
 - ENOSPC - no slot available in signal_page
 - ENOMEM - no memory to allocate singnal_page or no memory to copy user data into
-- EINVAL - signal_page is already set or gpu not found or provided bo is invalid or there is a problem with BO flags, check dmesg output
+- EINVAL - signal_page is already set
+    or gpu not found
+    or provided bo is invalid
+    or there is a problem with BO flags, check dmesg output
 
 ### DESTROY_EVENT
 		AMDKFD_IOW(0x09, struct kfd_ioctl_destroy_event_args)

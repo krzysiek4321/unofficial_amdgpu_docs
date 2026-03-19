@@ -70,6 +70,8 @@ amdgpu_gem_wait_idle_ioctl, DRM_AUTH|DRM_RENDER_ALLOW),
 ### CS
 amdgpu_cs_ioctl, DRM_AUTH|DRM_RENDER_ALLOW),
 
+- ECANCELLED - if during sumbitting ctx was lost
+
 ### INFO
 amdgpu_info_ioctl, DRM_AUTH|DRM_RENDER_ALLOW),
 
