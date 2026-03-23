@@ -4,6 +4,9 @@ Before we can do memory operations we need to first [acquire_vm](#acquire_vm).
 If you have an older gpu (before gfx10) you might also want to [set_memory_policy](#set_memory_policy).
 For newer gpus you'd make use of allocation flags.
 
+##### Why does it take gpu_id as input?
+Because drm file descriptor corresponds to a single gpu and kfd doesn't bother to search for the corresponding gpu_id instead asking you to provide it.
+
 ## IOCTLs
 ### acquire_vm
     AMDKFD_IOW(0x15, struct kfd_ioctl_acquire_vm_args)

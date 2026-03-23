@@ -6,7 +6,7 @@ They exist to reduce ioctl communication to schedule work to the gpu.
 
 They are scheduled to hardware pipes.
 
-You first allocate memory for the queue, then you create it, then you wait for events
+You first allocate memory for the queue, then you map it to CPU space, then you create the queue, then you wait for events
 signaled by your gpu commands, meanwhile you write new commands to the ring buffer and notify the gpu by writing to the doorbell corresponding to the created queue.
 
 You can set a mask to tell the gpu which CU you wish to have your gpu kernels to run on.
@@ -19,19 +19,17 @@ Size is in bytes but remember the ring buffer is an array of u32 values.
 Buffer must be 256 bytes aligned, becuase the address is passed to the gpu shifted right by 8.
 
 Buffer and rptr and wptr must be already mapped to buffer object (BO).
-The kernel does a lookup for Virtual Address (VA) mapping.
+But they are passed as addresses in CPU space.
+The kernel does a lookup for Virtual Address (VA) mapping to figure out which bo it is.
 
 `kfd_queue_acquire_buffers()` requires rptr and wptr to be mapped to exactly one gpu memory page (4096 bytes).
 It cannot be a part of a larger allocation.
 But I believe we can pack both of them and even ring buffer into one page if `size < 4096`.
 
 #### What is the type of value the rptr and wptr are pointing to?
-Perhaps it's actually indicees these pointers are dereferenced to u32 in create_queue kernel side implementation.
+These point to u32 values representing indicies into the ring buffer in **DWORDS**.
 
-They must be indicees because update_queue doesn't change the addresses of these.
-
-The size of the buffer is also in u32 and it would make sense
-to do arithmetic on indicees rather than raw addresses.
+The size of the ring buffer is in bytes, but it is passed to the gpu divided by 4.
 
 #### Is the rptr and wptr guaranteed to be accessed by only one thread?
 Don't know yet.
@@ -41,6 +39,13 @@ So the region from `[rptr, wptr - 1]` inclusive is reserved to be read by the gp
 
 The driver is going to modify the read_pointer as it consumes the commands from the buffer.
 Buffer is idle when *rptr == *wptr.
+
+### WPTR
+For AQL packets it counts in 64B units instead of dwords (4B).
+
+### RPTR Buffer Object
+For SDMA queues at the address rptr_addr + 0x8, there is a counter used by the gpu.
+And **for SDMA queues** rptr might also point to **a u64 value**.
 
 ### Queue Type
 * compute - 0x0, pm4 compute commands
@@ -56,6 +61,8 @@ A u32 value is actually split into two 8bit values.
 * bit 8-15: pm4_target_xcc - XCC's id when gpu is split into multiple, only for PM4 queue
 
 #### What does the percentage represent, what effect does it have?
+Do not set it to 0.
+
 I believe it's to specify how full the buffer should be before the kernel
 should start executing commands from it, this way it's more efficient.
 
@@ -116,6 +123,8 @@ Todo
 ### create_queue
 		AMDKFD_IOWR(0x02, struct kfd_ioctl_create_queue_args)
 
+These addresses are all in CPU address space of the running program.
+
 #### Required Inputs
 
 ```C
@@ -132,7 +141,6 @@ __u64 write_pointer_address;	/* to KFD */
 __u64 read_pointer_address;	/* to KFD */
 __u32 ring_size;		/* to KFD */
 ```
-
 
 #### Conditional Inputs
 

@@ -3,6 +3,9 @@ You can also use dmabuf to import GEM objects and export into GEM subsystem.
 
 It also allows for a Buffer Object to be mapped into multiple Virtual Adresses.
 
+You can mmap imported objects by setting offset to
+output of [`AMDGPU_GEM_MMAP`](../drm/ioctl.md#gem_mmap) ioctl.
+
 ## IOCTLs
 ### get_dmabuf_info
     AMDKFD_IOWR(0x1C, struct kfd_ioctl_get_dmabuf_info_args)

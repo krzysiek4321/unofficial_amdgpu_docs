@@ -30,6 +30,9 @@ Just pick one.
 Yes it can, although it's not straitforward to do. It's done internally with `ttm_bo_validate`.
 Which then uses the appropriate memory manager depending on memory placement for example vram_mgr.
 
+### Creating userptr
+Instead of the kernel module allocating memory it is instead provided via the offset field.
+
 ## Attributes (multiple of)
 * writable - allows GPU to write to this memory
 * executable - allows GPU to execute instructions from this memory
@@ -96,6 +99,9 @@ You'll get error on conflict.
 
 #### Outputs
 	__u64 handle;		/* from KFD */
+	__u64 mmap_offset;	/* to KFD (userptr), from KFD (mmap offset) */
+
+mmap_offset is used by `mmap()` on drm file except for mmio_remap where it should be used with kfd file instead.
 
 - ENODEV - you forgot to acquire_vm first
 

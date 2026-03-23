@@ -1,5 +1,24 @@
 # Memory
 
+## GTT
+Can be mmaped via drm file descriptor
+
+## VRAM with large bar
+Can be mmaped via drm file descriptor
+
+## MMIO_REMAP
+You can only write to this memory.
+
+Reads are ignored.
+
+## Scatter Gather memory (Doorbell, MMIO_REMAP)
+Grep for `ttm_bo_type_sg`.
+
+Can be written to cannot be read?.
+
+Such memory will produce a SIGBUS on access if it was not specifically marked to be mappable.
+
+
 ## VMID
 There is a total of 16 VMIDs per VMHUB.
 VMID 0 is reserved for the system.
